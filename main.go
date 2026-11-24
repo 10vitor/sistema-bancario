@@ -11,7 +11,8 @@ func main() {
 		fmt.Println("Recebendo uma requisição GET")
 		w.Write([]byte("Bem-Vindo ao sistema bancario!"))
 	} else {
-
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Write([]byte("Método não permitido"))
 	}
 	
 	})
