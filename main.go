@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"fmt"
 	"encoding/json"
+	"strconv"
 )
 
 type Account struct {
@@ -12,9 +13,14 @@ type Account struct {
 	Balance int     `json:"balance"`
 }
 
+type Deposit struct {
+	Amount int `json:"amount"`
+}
+
 func main() {
 	var accounts []Account
 	http.HandleFunc("/accounts", func(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method == http.MethodGet {
 		fmt.Println("Recebendo uma requisição GET")
 		w.Header().Set("Content-Type", "application/json")
@@ -44,5 +50,27 @@ func main() {
 
 	})
 
+	http.HandleFunc("GET /accounts/{number}", func(w http.ResponseWriter, r *http.Request) {
+		numero, err := strconv.Atoi(r.PathValue("number"))
+
+	if err != nil {
+    	http.Error(w, "Número da conta inválido", http.StatusBadRequest)
+    	return
+}
+	for _, account := range accounts {
+		if account.Number == numero {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(account)
+			return
+		}
+	}
+
+	http.Error(w, "Conta não encontrada", http.StatusNotFound)
+
+})
+
+	http.HandleFunc("POST /accounts/{number}/deposit", func(w http.ResponseWriter, r *http.Request) {
+		numero := r.PathValue("number")
+})
 	http.ListenAndServe(":8080", nil)
 }
